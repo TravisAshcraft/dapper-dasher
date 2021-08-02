@@ -13,7 +13,7 @@ int main()
     const int height{50};
 
     int PosY{WindowHeight - height};
-    int Velocity{-10};
+    int Velocity{0};
 
     SetTargetFPS(60);
     while(!WindowShouldClose())
@@ -21,8 +21,13 @@ int main()
         BeginDrawing();
         ClearBackground(WHITE);
 
-        PosY += Velocity;
+        
         DrawRectangle(WindowWidth/2, PosY, width, height, RED);
+        if(IsKeyDown(KEY_SPACE))
+        {
+            Velocity += -10;
+            PosY += Velocity;
+        }
 
 
         EndDrawing();
