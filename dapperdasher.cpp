@@ -7,6 +7,16 @@ int main()
     const int WindowWidth = 800;
     //intitalize window
     InitWindow(WindowWidth, WindowHeight, "Dapper Dasher");
+
+    //Acceleration due to gravity (Pixels/Frame)/Frame
+    const int Gravity {1};
+    const int JumpVal {-22};
+    bool IsInAir;
+
+    //Sprite
+    Texture2D Scarfy = LoadTexture("textures/scarfy.png");
+    Rectangle ScarfyRec;
+    Vector2 ScarfyPos;
     
     //rectangle dimensions
     const int width{50};
@@ -23,14 +33,32 @@ int main()
 
         
         DrawRectangle(WindowWidth/2, PosY, width, height, RED);
-        if(IsKeyDown(KEY_SPACE))
+        
+        //Ground check
+        if(PosY >= WindowHeight -height)
         {
-            Velocity += -10;
-            PosY += Velocity;
+            //Player on the ground
+            Velocity = 0;
+            IsInAir = false;
         }
+        else{
+            //Apply gravity
+             Velocity += Gravity;
+        }
+        //Check for jumping
+        if(IsKeyDown(KEY_SPACE) && !IsInAir)
+        {
+            Velocity += JumpVal;
+            IsInAir = true;
+            
+        }
+      
 
+        //Update Position
+        PosY += Velocity;
 
         EndDrawing();
     }
     CloseWindow();
 }
+
