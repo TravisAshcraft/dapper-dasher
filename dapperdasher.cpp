@@ -1,5 +1,14 @@
 #include "raylib.h"
 
+struct AnimData
+{
+    Rectangle Rec;
+    Vector2 Pos;
+    int Frame;
+    float UpdateTime;
+    float RunningTime;
+};
+
 int main()
 {
     //window dimensions
@@ -17,20 +26,30 @@ int main()
     Texture2D Nebula = LoadTexture("textures/12_nebula_spritesheet.png");
     Rectangle NebulaRec{0.0, 0.0, Nebula.width/ 8, Nebula.height/8};
     Vector2 NebulaPos{WindowWidth, WindowHeight - NebulaRec.height};
-    int NebulaVel{-600}; //Nebula x velocity (pixels per second)
+    int NebulaVel{-300}; //Nebula x velocity (pixels per second)
+
+    int NebFrame{0};
+    const float NebUpdateTime{1.0/12.0};
+    float NebRunningTime{};
 
 //Scarfy/Player variables
     //Sprite
     Texture2D Scarfy = LoadTexture("textures/scarfy.png");
-    Rectangle ScarfyRec{0.0, 0.0, Scarfy.width/6, Scarfy.height};
+    AnimData ScarfyData;
+    ScarfyData.Rec.width = Scarfy.width/6;
+    ScarfyData.Rec.height = Scarfy.height;
+    ScarfyData.Rec.x = 0;
+    ScarfyData.Rec.y = 0;
+    ScarfyData.Pos.x = WindowWidth/2-ScarfyData.Rec.width/2;
+    ScarfyData.Pos.y = WindowHeight-ScarfyData.Rec.height;
+    ScarfyData.Frame = 0;
+    ScarfyData.UpdateTime = 1.0/12.0;
+    ScarfyData.RunningTime = 0;
+    
 
-    Vector2 ScarfyPos{WindowWidth/2-ScarfyRec.width/2, WindowHeight-ScarfyRec.height};
+
     int Velocity{0};
-    //Animation Frame rate
-    int Frame{0};
-    //amount of time before animation frame update
-    const float UpdateTime{1.0/12.0};
-    float RunningTime{};
+
 
     SetTargetFPS(60);
     while(!WindowShouldClose())
@@ -43,7 +62,7 @@ int main()
         
         
         //Ground check
-        if(ScarfyPos.y >= WindowHeight - ScarfyRec.height)
+        if(ScarfyData.Pos.y >= WindowHeight - ScarfyData.Rec.height)
         {
             //Player on the ground
             Velocity = 0;
@@ -67,24 +86,39 @@ int main()
       
 
         //Update scarfy Position
-        ScarfyPos.y += Velocity * DT;
+        ScarfyData.Pos.y += Velocity * DT;
         if(!IsInAir)
         {
-            //update runningtime
-            RunningTime += DT;
-            if(RunningTime >= UpdateTime)
+
+           
+            //update scarfy's animation frame
+            ScarfyData.RunningTime += DT;
+            if(ScarfyData.RunningTime >= ScarfyData.UpdateTime)
             {
                 //Resets running time back to zero
-                RunningTime = 0;
+                ScarfyData.RunningTime = 0;
                 //update animation frame
-                ScarfyRec.x = Frame * ScarfyRec.width;
-                Frame++;
-                if(Frame > 5)
+                ScarfyData.Rec.x = ScarfyData.Frame * ScarfyData.Rec.width;
+                ScarfyData.Frame++;
+                if(ScarfyData.Frame > 5)
                 {
                     //resets frame count to zero to return to the 
                     //first animation and repeat the cycle
-                    Frame = 0;
+                    ScarfyData.Frame = 0;
                 }
+            }
+        }
+
+        //Updat nebula animation frame
+        NebRunningTime += DT;
+        if(NebRunningTime >= NebUpdateTime)
+        {
+            NebRunningTime = 0;
+            NebulaRec.x = NebFrame * NebulaRec.width;
+            NebFrame++;
+            if(NebFrame > 7)
+            {
+                NebFrame = 0;
             }
         }
         
@@ -93,12 +127,12 @@ int main()
         DrawTextureRec(Nebula, NebulaRec, NebulaPos, WHITE);
 
         //Draw Scarfy
-        DrawTextureRec(Scarfy, ScarfyRec, ScarfyPos, WHITE);
+        DrawTextureRec(Scarfy, ScarfyData.Rec, ScarfyData.Pos, WHITE);
 
         EndDrawing();
     }
     UnloadTexture(Scarfy);
     UnloadTexture(Nebula);
     CloseWindow();
-}
+};
 
